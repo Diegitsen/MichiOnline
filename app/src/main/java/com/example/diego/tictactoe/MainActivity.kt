@@ -158,4 +158,14 @@ class MainActivity : AppCompatActivity() {
 
         jugar(celdaID,bSeleccionado)
     }
+
+    fun bAceptarEvent(view:View)
+    {
+
+    }
+
+    fun bEnviarEvent(view:View)
+    {
+
+    }
 }
