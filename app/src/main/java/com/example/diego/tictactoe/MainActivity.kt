@@ -7,10 +7,15 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.Exception
 import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
@@ -29,6 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         var b:Bundle=intent.extras
         myEmail = b.getString("email")
+        incomingCalls()
 
     }
 
@@ -174,12 +180,57 @@ class MainActivity : AppCompatActivity() {
     fun bAceptarEvent(view:android.view.View)
     {
         var email = etEmail.text.toString()
+        myRef.child("Users").child(splitString(email)).child("Request").push().setValue(myEmail)
 
     }
 
     fun bEnviarEvent(view:android.view.View)
     {
         var email = etUserEmail.text.toString()
-        myRef.child("Users").child(email).child("Request").push().setValue(myEmail)
+        myRef.child("Users").child(splitString(email)).child("Request").push().setValue(myEmail)
+    }
+
+    fun incomingCalls()
+    {
+        myRef.child("Users").child(splitString(myEmail!!)).child("Request")
+            .addValueEventListener(object:ValueEventListener
+            {
+                override fun onDataChange(dataSnapshot: DataSnapshot)
+                {
+                    try
+                    {
+                        val td = dataSnapshot!!.value as HashMap<String, Any>
+
+                        if(td!=null)
+                        {
+                            var value:String
+
+                            for(key in td.keys)
+                            {
+                                value=td[key] as String
+                                etUserEmail.setText(value)
+
+                                myRef.child("Users").child(splitString(myEmail!!)).child("Request").setValue(true)
+
+                            }
+                        }
+                    }
+                    catch (ex:Exception)
+                    {
+
+                    }
+                }
+
+                override fun onCancelled(p0: DatabaseError)
+                {
+
+                }
+            })
+    }
+
+    fun splitString(str:String):String
+    {
+        var split = str.split("@")
+        return split[0]
     }
 }
