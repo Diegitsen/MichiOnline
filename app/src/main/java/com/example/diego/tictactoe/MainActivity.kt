@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -14,10 +16,20 @@ class MainActivity : AppCompatActivity() {
 
     private var mFirebaseAnalytics:FirebaseAnalytics?=null
 
+    private var database = FirebaseDatabase.getInstance()
+    private var myRef = database.reference
+
+    private var myEmail:String?=null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        var b:Bundle=intent.extras
+        myEmail = b.getString("email")
+
     }
 
     fun buClick(boton: View)
@@ -159,13 +171,15 @@ class MainActivity : AppCompatActivity() {
         jugar(celdaID,bSeleccionado)
     }
 
-    fun bAceptarEvent(view:View)
+    fun bAceptarEvent(view:android.view.View)
     {
+        var email = etEmail.text.toString()
 
     }
 
-    fun bEnviarEvent(view:View)
+    fun bEnviarEvent(view:android.view.View)
     {
-
+        var email = etUserEmail.text.toString()
+        myRef.child("Users").child(email).child("Request").push().setValue(myEmail)
     }
 }

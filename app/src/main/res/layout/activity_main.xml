@@ -24,7 +24,7 @@
                 android:inputType="textPersonName"
                 android:hint="Email"
                 android:ems="10"
-                android:id="@+id/editText" android:layout_weight="1"/>
+                android:id="@+id/etUserEmail" android:layout_weight="1"/>
         <Button
                 android:layout_marginLeft="5dp"
                 android:background="@color/colorPrimary"
