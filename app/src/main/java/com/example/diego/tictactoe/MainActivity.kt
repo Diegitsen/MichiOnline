@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             player1.add(cellID)
 
             activePlayer = 2
-            jugarConCelular()
+            //jugarConCelular()
         }
         else
         {
@@ -141,9 +141,9 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun jugarConCelular()
+    fun jugarConCelular(celdaID: Int)
     {
-        var celdaVacia=ArrayList<Int>()
+       /* var celdaVacia=ArrayList<Int>()
         for(cellID in 1..9)
         {
             if(!(player1.contains(cellID) || player2.contains(cellID)))
@@ -155,7 +155,7 @@ class MainActivity : AppCompatActivity() {
         val r = Random()
 
         var randIndex = r.nextInt(celdaVacia.size-0)+0
-        val celdaID = celdaVacia[randIndex]
+        val celdaID = celdaVacia[randIndex]*/
 
         var bSeleccionado:Button?
 
@@ -174,20 +174,76 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        jugar(celdaID,bSeleccionado)
+       // jugar(celdaID,bSeleccionado)
+
+        myRef.child("JuegoOnline").child(sesionID!!).child(celdaID.toString()).setValue(myEmail)
     }
 
     fun bAceptarEvent(view:android.view.View)
     {
         var email = etEmail.text.toString()
         myRef.child("Users").child(splitString(email)).child("Request").push().setValue(myEmail)
-
+        jugarOnline(splitString(email)+splitString(myEmail!!))
+        simbolo="O"
     }
 
     fun bEnviarEvent(view:android.view.View)
     {
         var email = etUserEmail.text.toString()
         myRef.child("Users").child(splitString(email)).child("Request").push().setValue(myEmail)
+        jugarOnline(splitString(myEmail!!)+splitString(email))
+        simbolo = "X"
+    }
+
+    var sesionID:String?=null
+    var simbolo:String?=null
+
+    fun jugarOnline(sesionID:String)
+    {
+        this.sesionID = sesionID
+        myRef.child("JuegoOnline").removeValue()
+        myRef.child("JuegoOnline").child(sesionID)
+            .addValueEventListener(object:ValueEventListener
+            {
+                override fun onDataChange(dataSnapshot: DataSnapshot)
+                {
+                    try
+                    {
+                        player1.clear()
+                        player2.clear()
+                        val td = dataSnapshot!!.value as HashMap<String, Any>
+
+                        if(td!=null)
+                        {
+                            var value:String
+
+                            for(key in td.keys)
+                            {
+                                value=td[key] as String
+
+                                if(value!=myEmail)
+                                {
+                                    activePlayer=if(simbolo==="X") 1 else 2
+                                }
+                                else
+                                {
+                                    activePlayer=if(simbolo==="X") 2 else 1
+                                }
+                                jugarConCelular(key.toInt())
+                            }
+                        }
+                    }
+                    catch (ex:Exception)
+                    {
+
+                    }
+                }
+
+                override fun onCancelled(p0: DatabaseError)
+                {
+
+                }
+            })
     }
 
     fun incomingCalls()
